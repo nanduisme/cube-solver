@@ -181,17 +181,17 @@ class Cube:
 
             case Move.F:
                 self.rotate_face(move)
+                f = lambda x: -x + 8
                 for i in [6, 7, 8]:
-                    # TODO: fix for orange
                     (
                         self.cube[Color.R][i],
-                        self.cube[Color.Y][i - 6],
+                        self.cube[Color.Y][f(i)],
                         self.cube[Color.O][i],
                         self.cube[Color.W][i],
                     ) = (
                         self.cube[Color.W][i],
                         self.cube[Color.R][i],
-                        self.cube[Color.Y][i - 6],
+                        self.cube[Color.Y][f(i)],
                         self.cube[Color.O][i],
                     )
 
@@ -199,24 +199,153 @@ class Cube:
                 for _ in range(3):
                     self.move(Move.F)
 
+            case Move.B:
+                self.rotate_face(move)
+                f = lambda x: -x + 8
+                for i in [0, 1, 2]:
+                    (
+                        self.cube[Color.R][i],
+                        self.cube[Color.Y][f(i)],
+                        self.cube[Color.O][i],
+                        self.cube[Color.W][i],
+                    ) = (
+                        self.cube[Color.W][i],
+                        self.cube[Color.R][i],
+                        self.cube[Color.Y][f(i)],
+                        self.cube[Color.O][i],
+                    )
+
+            case Move.BP:
+                for _ in range(3):
+                    self.move(Move.B)
+
+            case Move.U:
+                self.rotate_face(move)
+
+                rg = {6: 0, 3: 1, 0: 2}
+                go = {0: 2, 1: 5, 2: 8}
+                ob = {2: 8, 5: 7, 8: 6}
+                br = {8: 6, 7: 3, 6: 0}
+
+                # G to O
+                temp_o = []
+                for org in go:
+                    temp_o.append(self.cube[Color.G][org])
+
+                # O to B
+                temp_b = []
+                for org in ob:
+                    temp_b.append(self.cube[Color.O][org])
+
+                # B to R
+                temp_r = []
+                for org in br:
+                    temp_r.append(self.cube[Color.B][org])
+
+                # R to G
+                temp_g = []
+                for org in rg:
+                    temp_g.append(self.cube[Color.R][org])
+
+                # Filling them in
+
+                for dest, tile in zip(go.values(), temp_o):
+                    self.cube[Color.O][dest] = tile
+                for dest, tile in zip(ob.values(), temp_b):
+                    self.cube[Color.B][dest] = tile
+                for dest, tile in zip(br.values(), temp_r):
+                    self.cube[Color.R][dest] = tile
+                for dest, tile in zip(rg.values(), temp_g):
+                    self.cube[Color.G][dest] = tile
+
+            case Move.UP:
+                for _ in range(3):
+                    self.move(Move.U)
+
+            case Move.DP:
+                self.rotate_face(Move.D)
+
+                rg = {8: 6, 5: 7, 2: 8}
+                go = {6: 0, 7: 3, 8: 6}
+                ob = {0: 2, 3: 1, 6: 0}
+                br = {2: 8, 1: 5, 0: 2}
+
+                # G to O
+                temp_o = []
+                for org in go:
+                    temp_o.append(self.cube[Color.G][org])
+
+                # O to B
+                temp_b = []
+                for org in ob:
+                    temp_b.append(self.cube[Color.O][org])
+
+                # B to R
+                temp_r = []
+                for org in br:
+                    temp_r.append(self.cube[Color.B][org])
+
+                # R to G
+                temp_g = []
+                for org in rg:
+                    temp_g.append(self.cube[Color.R][org])
+
+                # Filling them in
+
+                for dest, tile in zip(go.values(), temp_o):
+                    self.cube[Color.O][dest] = tile
+                for dest, tile in zip(ob.values(), temp_b):
+                    self.cube[Color.B][dest] = tile
+                for dest, tile in zip(br.values(), temp_r):
+                    self.cube[Color.R][dest] = tile
+                for dest, tile in zip(rg.values(), temp_g):
+                    self.cube[Color.G][dest] = tile
+
+            case Move.D:
+                for _ in range(3):
+                    self.move(Move.DP)
+
 
 cube = Cube()
 
 while True:
-    m = input("Enter your move: ").lower()
-    match m:
-        case "l":
-            cube.move(Move.L)
-        case "lp":
-            cube.move(Move.LP)
-        case "r":
-            cube.move(Move.R)
-        case "rp":
-            cube.move(Move.RP)
-        case "f":
-            cube.move(Move.F)
-        case "fp":
-            cube.move(Move.FP)
-        case ".":
-            break
+    moves = input("Enter your move: ").lower()
+
+    for move in "rludfb":
+        moves = moves.replace(f"{move}2", f"{move} {move}")
+
+    moves = moves.split()
+    print(moves)
+
+    for m in moves:
+        match m:
+            case "l":
+                cube.move(Move.L)
+            case "lp":
+                cube.move(Move.LP)
+            case "r":
+                cube.move(Move.R)
+            case "rp":
+                cube.move(Move.RP)
+            case "f":
+                cube.move(Move.F)
+            case "fp":
+                cube.move(Move.FP)
+            case "b":
+                cube.move(Move.B)
+            case "bp":
+                cube.move(Move.BP)
+            case "u":
+                cube.move(Move.U)
+            case "up":
+                cube.move(Move.UP)
+            case "d":
+                cube.move(Move.D)
+            case "dp":
+                cube.move(Move.DP)
+            case ".":
+                break
+    else:
+        cube.show()
+        break
     cube.show()
